@@ -18,7 +18,7 @@ const CONFIG = {
   players: [
     { riotId: "Cebolokoh98#SOC",      rol: "Top",     main: "Galio"  },
     { riotId: "BARI POPPYNS#2025",      rol: "Top",   main: "Poppy"  },
-    { riotId: "MLVVND El Piruko#EUW",  rol: "Jungla",  main: "Lee sin" },
+    { riotId: "MLVVND El Piruko#EUW",  rol: "Jungla",  main: "Leesin" },
     { riotId: "ette secht#EUW",        rol: "Mid",     main: "Akshan"   },
     { riotId: "Hi Im Gonza#7385",      rol: "Mid",     main: "Fizz"   },
     { riotId: "Parisuko#EUW",          rol: "ADC",     main: "Vayne"  },
