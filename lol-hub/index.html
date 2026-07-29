@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LoL Hub — Cuartel general del grupo</title>
+  <meta name="description" content="Dashboard privado de perfiles de League of Legends del grupo.">
+  <link rel="preconnect" href="https://ddragon.leagueoflegends.com">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body>
+
+  <header>
+    <div class="title">🛡️ <span id="group-name">LoL Hub</span></div>
+    <div class="subtitle">Cuartel general del grupo · Región <b id="region-lbl">EUW</b></div>
+    <div class="patch-badge"><span class="dot"></span><span id="patch">Cargando parche…</span></div>
+  </header>
+
+  <!-- Barra de acciones globales -->
+  <div class="actionbar">
+    <a id="btn-multi" class="btn primary" href="#" target="_blank" rel="noopener">
+      <span class="ico">👥</span> Ver todos en OP.GG (multi-search)
+    </a>
+    <button class="btn" onclick="openAllProfiles()">
+      <span class="ico">🗂️</span> Abrir cada perfil en pestañas
+    </button>
+    <button class="btn" onclick="copyLobby()">
+      <span class="ico">📋</span> Copiar lista de la sala
+    </button>
+    <a id="patch-notes" class="btn" href="#" target="_blank" rel="noopener">
+      <span class="ico">📜</span> Notas del parche
+    </a>
+  </div>
+
+  <!-- Tarjetas de jugadores -->
+  <div class="grid" id="grid"></div>
+
+  <!-- Herramientas extra -->
+  <div class="tools">
+    <div class="section-title">⚔️ Herramientas rápidas</div>
+    <div class="tools-grid">
+
+      <div class="tool">
+        <h3>🎲 Campeón aleatorio</h3>
+        <p>¿No sabéis qué jugar? Que decida la suerte. Perfecto para retos o ARAM personalizado.</p>
+        <div class="out" id="champ-out">—</div>
+        <button class="btn primary" onclick="randomChamp()">Girar ruleta</button>
+      </div>
+
+      <div class="tool">
+        <h3>🎯 ¿Quién elige primero?</h3>
+        <p>Sortea al azar quién del grupo pickea/banea o decide la próxima partida.</p>
+        <div class="out" id="player-out">—</div>
+        <button class="btn primary" onclick="randomPlayer()">Sortear jugador</button>
+      </div>
+
+      <div class="tool">
+        <h3>🪙 Lado azul o rojo</h3>
+        <p>Para las custom y los scrims: sortea qué lado del mapa os toca.</p>
+        <div class="out" id="coin-out">—</div>
+        <button class="btn primary" onclick="coin()">Lanzar</button>
+      </div>
+
+      <div class="tool">
+        <h3>📊 Tier list del parche</h3>
+        <p>Los mejores campeones por rol según la meta actual (U.GG).</p>
+        <div class="out" style="font-size:13px;color:var(--text-dim)">Meta en directo</div>
+        <a class="btn" href="https://u.gg/lol/tier-list" target="_blank" rel="noopener">Abrir tier list</a>
+      </div>
+
+      <div class="tool">
+        <h3>🔴 Estado en directo</h3>
+        <p>Comprueba de golpe quién del grupo está ahora mismo en partida.</p>
+        <div class="out" style="font-size:13px;color:var(--text-dim)">Vía Porofessor</div>
+        <button class="btn" onclick="copyLobby()">Copiar lista y comprobar</button>
+      </div>
+
+      <div class="tool">
+        <h3>📺 Ver esports</h3>
+        <p>Directos y calendario de LEC / LCK / Worlds para verlos juntos.</p>
+        <div class="out" style="font-size:13px;color:var(--text-dim)">LoL Esports</div>
+        <a class="btn" href="https://lolesports.com/es-ES" target="_blank" rel="noopener">Ver competitivo</a>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    Hecho con ❤️ para el grupo · Datos de <a href="https://developer.riotgames.com" target="_blank" rel="noopener">Riot Data Dragon</a>
+    y enlaces a OP.GG · DPM.LOL · U.GG · Porofessor · DeepLoL.
+    <div class="disclaimer">
+      Esta web no está avalada por Riot Games y no refleja las opiniones ni puntos de vista de Riot Games
+      ni de nadie oficialmente involucrado en la producción o gestión de League of Legends.
+      League of Legends y Riot Games son marcas comerciales o marcas registradas de Riot Games, Inc.
+    </div>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
