@@ -13,7 +13,7 @@ const CONFIG = {
     { riotId: "Hi Im Gonza#7385",     rol: "Mid",     main: "Fizz"   },
     { riotId: "Parisuko#EUW",         rol: "ADC",     main: "Vayne"  },
     { riotId: "sukooo#suko",          rol: "ADC",     main: "Ashe"   },
-    { riotId: "Parisuko#EUW",         rol: "ADC",     main: "Braum"  },
-    { riotId: "Tacuoptero#3612",      rol: "Support", main: "Lulu"   }
+    { riotId: "tacua#EUW",            rol: "Support", main: "Lulu"   },
+    { riotId: "Tacuoptero#3612",      rol: "Support", main: "Braum"   }
   ]
 };
