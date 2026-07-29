@@ -12,6 +12,8 @@ const CONFIG = {
     { riotId: "ette secht#EUW",       rol: "Mid",     main: "Akshan" },
     { riotId: "Hi Im Gonza#7385",     rol: "Mid",     main: "Fizz"   },
     { riotId: "Parisuko#EUW",         rol: "ADC",     main: "Vayne"  },
-    { riotId: "tacua#EUW",            rol: "Support", main: "Lulu"   }
+    { riotId: "sukooo#suko",          rol: "ADC",     main: "Ashe"   },
+    { riotId: "Parisuko#EUW",         rol: "ADC",     main: "Braum"  },
+    { riotId: "tacuantino#EUW",            rol: "Support", main: "Lulu"   }
   ]
 };
