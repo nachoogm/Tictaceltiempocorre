@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sala de Entrenamiento — Tictac el tiempo corre</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+</head>
+<body>
+<header class="hero hero-sm"><canvas id="fx"></canvas><h1>Sala de Entrenamiento</h1><div class="tagline">Calienta el ratón antes de la ranked 🖱️🔥</div></header>
+<div class="ar-modes">
+  <button class="rk-tab active" data-mode="aim">🎯 Puntería</button>
+  <button class="rk-tab" data-mode="dodge">💨 Esquiva</button>
+  <button class="rk-tab" data-mode="dodgeshoot">🔫 Esquiva y dispara</button>
+  <button class="rk-tab" data-mode="reaction">⚡ Reacción</button>
+  <span class="ar-best" id="ar-best"></span>
+</div>
+<div class="ar-wrap">
+  <div class="ar-hud">
+    <div class="ar-stat"><span class="ar-lbl">Puntos</span><b id="ar-score">0</b></div>
+    <div class="ar-stat"><span class="ar-lbl">Tiempo</span><b id="ar-time">—</b></div>
+    <div class="ar-stat" id="ar-extra-box"><span class="ar-lbl" id="ar-extra-lbl">Precisión</span><b id="ar-extra">—</b></div>
+    <div class="ar-who"><span class="ar-lbl">Jugador</span><select id="ar-player"></select></div>
+    <button class="btn primary" id="ar-start">▶ Empezar</button>
+  </div>
+  <div class="ar-arena" id="arena">
+    <div class="ar-overlay" id="ar-overlay"><div class="ar-ov-inner" id="ar-ov-inner">
+      <div class="ar-ov-title">🎯 Modo Puntería</div>
+      <div class="ar-ov-desc" id="ar-ov-desc">Clica los campeones lo más rápido que puedas antes de que desaparezcan. ¡30 segundos!</div>
+      <button class="btn primary" id="ar-play">▶ Jugar</button>
+    </div></div>
+  </div>
+  <div class="ar-tip" id="ar-tip">💡 Elige tu nombre arriba para guardar tu marca en el ranking del grupo.</div>
+</div>
+<div class="ar-rank">
+  <div class="ar-rank-head"><h2>🏅 Ranking del grupo</h2><span class="ar-rank-sub" id="ar-rank-sub">Mejores marcas por modo</span></div>
+  <div class="ar-rank-tabs" id="ar-rank-tabs">
+    <button class="fb-btn active" data-rk="aim">🎯 Puntería</button>
+    <button class="fb-btn" data-rk="dodge">💨 Esquiva</button>
+    <button class="fb-btn" data-rk="dodgeshoot">🔫 Esquiva y dispara</button>
+    <button class="fb-btn" data-rk="reaction">⚡ Reacción</button>
+  </div>
+  <div class="ar-rank-body" id="ar-rank-body"><div class="mh-empty">Cargando ranking…</div></div>
+</div>
+<footer><div class="disclaimer">Minijuego local de reflejos — no usa la Riot API. El ranking se comparte entre el grupo (Azure). Iconos de Data Dragon. League of Legends © Riot Games, Inc.</div></footer>
+<script src="config.js"></script><script src="common.js"></script><script src="arena.js"></script>
+</body>
+</html>
