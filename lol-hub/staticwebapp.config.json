@@ -1,0 +1,14 @@
+{
+  "navigationFallback": { "rewrite": "/index.html", "exclude": ["/api/*","*.css","*.js","*.html","*.svg","*.png","*.ico"] },
+  "routes": [
+    { "route": "/api/summoner", "methods": ["GET"], "allowedRoles": ["anonymous"] },
+    { "route": "/api/matches", "methods": ["GET"], "allowedRoles": ["anonymous"] },
+    { "route": "/api/match", "methods": ["GET"], "allowedRoles": ["anonymous"] },
+    { "route": "/api/live", "methods": ["GET"], "allowedRoles": ["anonymous"] },
+    { "route": "/api/lp", "methods": ["GET","POST"], "allowedRoles": ["anonymous"] },
+    { "route": "/api/scores", "methods": ["GET","POST"], "allowedRoles": ["anonymous"] },
+    { "route": "/api/cron-lp", "methods": ["GET","POST"], "allowedRoles": ["anonymous"] }
+  ],
+  "mimeTypes": { ".json": "application/json" },
+  "platform": { "apiRuntime": "node:18" }
+}
