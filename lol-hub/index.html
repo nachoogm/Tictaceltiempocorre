@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tictac el tiempo corre — Inicio</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏳</text></svg>">
+</head>
+<body>
+<header class="hero">
+  <canvas id="fx"></canvas>
+  <div class="hero-badge"><span class="dot"></span> Cuartel general · Región <b>EUW</b></div>
+  <h1 id="group-name">Tictac el tiempo corre</h1>
+  <div class="tagline" id="tagline">El tiempo corre… y nosotros farmeamos</div>
+  <div class="ornament"><span class="lineo"></span><span class="gem"></span><span class="lineo r"></span></div>
+  <div class="patch"><span class="dot"></span><span data-patch>Cargando parche…</span></div>
+  <!-- BUSCADOR de cualquier invocador EUW -->
+  <form class="hs-search" id="hs-search" autocomplete="off">
+    <input type="text" id="hs-input" placeholder="🔍 Busca cualquier invocador EUW (Nombre#TAG)…">
+    <button class="btn primary" type="submit">Buscar</button>
+  </form>
+  <div class="hs-result" id="hs-result"></div>
+</header>
+<div class="section-head"><h2>🎮 Los chavales</h2><span>Clic en una partida para ver el detalle completo</span></div>
+<div class="filterbar">
+  <div class="fb-group"><span class="fb-lbl">Ordenar:</span>
+    <button class="fb-btn active" data-sort="default">Por defecto</button>
+    <button class="fb-btn" data-sort="alpha">🔤 A-Z</button>
+    <button class="fb-btn" data-sort="elo">🏆 Elo</button>
+    <button class="fb-btn" data-sort="live">🔴 En vivo</button>
+  </div>
+  <div class="fb-group"><span class="fb-lbl">Posición:</span>
+    <button class="fb-pos active" data-pos="ALL">Todas</button>
+    <button class="fb-pos" data-pos="Top">⚔️</button><button class="fb-pos" data-pos="Jungla">🌳</button>
+    <button class="fb-pos" data-pos="Mid">✨</button><button class="fb-pos" data-pos="ADC">🏹</button><button class="fb-pos" data-pos="Support">🛡️</button>
+  </div>
+</div>
+<div class="grid" id="grid"></div>
+<footer>Hecho con ❤️ para <b>Tictac el tiempo corre</b> · Datos de <a href="https://developer.riotgames.com" target="_blank" rel="noopener">Riot Data Dragon &amp; API</a>.
+  <div class="disclaimer">Tictac el tiempo corre no está avalada por Riot Games. League of Legends © Riot Games, Inc.</div></footer>
+<script src="config.js"></script><script src="common.js"></script>
+<script>
+function renderCardStats(full,d,raw){
+  const slot=document.querySelector(`[data-live="${CSS.escape(full)}"]`);
+  if(slot)slot.innerHTML=rankBadge(d.solo,"SoloQ")+rankBadge(d.flex,"Flex")+(d.level?`<div class="lvl-line">Nivel ${d.level}</div>`:"");
+  const nameEl=document.querySelector(`[data-rank="${CSS.escape(full)}"]`);if(nameEl&&d.solo)nameEl.innerHTML=miniRank(d.solo);
+  const mslot=document.querySelector(`[data-mastery="${CSS.escape(full)}"]`);
+  if(mslot){const ch=(d.topChamps||[]).map(c=>champById(c.championId)).filter(Boolean);mslot.innerHTML=ch.length?`<span class="lbl">Mains</span>`+ch.map(c=>`<img src="${champIcon(c.id)}" title="${c.name}">`).join(""):`<span class="lbl">Mains</span><span class="m-none">sin datos</span>`;}
+  const card=document.querySelector(`[data-card="${CSS.escape(full)}"]`);const poro=card&&card.querySelector(".poro-link");
+  if(d.live){if(card)card.classList.add("ingame");const flag=card&&card.querySelector(".live-flag");if(flag){flag.classList.add("show");flag.querySelector(".txt").textContent=`EN PARTIDA · ${d.live.minutes}′`;}if(poro){poro.classList.remove("disabled");poro.textContent="🔴 Ver en directo (Porofessor)";}}
+  else if(poro){poro.classList.add("disabled");poro.textContent="⚫ No está en partida ahora";}
+}
+function buildCards(){
+  const grid=document.getElementById("grid");grid.innerHTML="";
+  CONFIG.players.forEach(raw=>{const p=parseId(raw.riotId);const u=urls(p);const iconId=(raw.main||"Poro").replace(/\s|'|\./g,"");
+    const card=document.createElement("div");card.className="card";card.setAttribute("data-card",p.full);card.setAttribute("data-pos",raw.rol||"");card.setAttribute("data-name",p.name.toLowerCase());
+    card.innerHTML=`<div class="card-top"><img class="avatar" src="${champIcon(iconId)}" onerror="this.src='https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VER}/img/profileicon/29.png'"><div class="pinfo"><div class="pname-row"><a class="pname" href="${u.dpm}" target="_blank" rel="noopener" title="Ver perfil de ${p.full} en DPM.LOL">${p.name}</a><span data-rank="${p.full}"></span></div><div class="ptag">#${p.tag}</div><div class="pmeta">${raw.rol?`<span class="chip rol">${raw.rol}</span>`:""}${raw.main?`<span class="chip">${raw.main}</span>`:""}<span class="streak" data-streak="${p.full}"></span></div></div><span class="live-flag"><span>●</span> <span class="txt">EN PARTIDA</span></span></div>
+      <div class="live-stats" data-live="${p.full}"><span class="rank-none">Cargando stats…</span></div>
+      <div class="mastery" data-mastery="${p.full}"><span class="lbl">Mains</span><span class="m-none">…</span></div>
+      <div class="mh-head">📜 Últimas partidas <small>(clic para detalle)</small></div>
+      <div class="match-history" data-matches="${p.full}"><div class="mh-empty">Cargando historial…</div></div>
+      <div class="links"><a class="lnk" href="${u.opgg}" target="_blank" rel="noopener">OP.GG</a><a class="lnk" href="${u.dpm}" target="_blank" rel="noopener">DPM.LOL</a><a class="lnk wide poro-link disabled" href="${u.porofessor}" target="_blank" rel="noopener">⚫ Comprobando estado…</a></div>`;
+    grid.appendChild(card);});
+}
+let curSort="default",curPos="ALL";
+function applyFilters(){
+  const grid=document.getElementById("grid");const cards=[...grid.querySelectorAll(".card")];
+  cards.forEach(c=>{const pos=c.getAttribute("data-pos")||"";c.style.display=(curPos==="ALL"||pos===curPos)?"":"none";});
+  const visible=cards.filter(c=>c.style.display!=="none");const full=c=>c.getAttribute("data-card");
+  const s={default:()=>0,alpha:(a,b)=>(a.getAttribute("data-name")||"").localeCompare(b.getAttribute("data-name")||""),elo:(a,b)=>rankScore((STATS[full(b)]||{}).solo)-rankScore((STATS[full(a)]||{}).solo),live:(a,b)=>((STATS[full(b)]||{}).live?1:0)-((STATS[full(a)]||{}).live?1:0)};
+  if(curSort!=="default")visible.sort(s[curSort]);visible.forEach(c=>grid.appendChild(c));
+}
+/* BUSCADOR invocador EUW */
+async function doSearch(e){
+  e.preventDefault();const q=document.getElementById("hs-input").value.trim();const box=document.getElementById("hs-result");
+  if(!q.includes("#")){box.innerHTML=`<div class="hs-err">Escribe el Riot ID completo: <b>Nombre#TAG</b></div>`;return;}
+  box.innerHTML=`<div class="hs-loading">Buscando…</div>`;
+  const p=parseId(q);
+  try{
+    const d=await cachedFetch(`/api/summoner?riotId=${enc(p.full)}&platform=${R.uggPlatform}`,4*60*1000);
+    const s=d.solo;const c=s?(TIER_COLORS[s.tier]||"var(--gold)"):"var(--text-dim)";
+    const iconId=(d.topChamps&&d.topChamps[0]&&champById(d.topChamps[0].championId))?champById(d.topChamps[0].championId).id:"Poro";
+    box.innerHTML=`<div class="hs-card"><img src="${champIcon(iconId)}" onerror="this.src='https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VER}/img/profileicon/29.png'"><div class="hs-info"><div class="hs-name">${d.gameName||p.name} <span class="hs-tag">#${p.tag}</span></div><div class="hs-rank" style="color:${c}">${s?`${TIER_ES[s.tier]||s.tier} ${s.rank} · ${s.lp} LP · ${s.winrate}% WR`:"Sin clasificar en SoloQ"}${d.level?` · Nv.${d.level}`:""}</div></div><a class="btn primary" href="${dpmProfile(p)}" target="_blank" rel="noopener">Ver en DPM.LOL</a></div>`;
+  }catch(err){box.innerHTML=`<div class="hs-err">${(err&&err.data&&err.data.error)||"No encontrado. Revisa el Riot ID."}</div>`;}
+}
+(async function(){injectNav("index.html");document.getElementById("group-name").textContent=CONFIG.groupName;if(CONFIG.tagline)document.getElementById("tagline").textContent=CONFIG.tagline;
+  document.getElementById("hs-search").addEventListener("submit",doSearch);
+  initFX();await loadDDragon();buildCards();
+  document.querySelectorAll(".fb-btn").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".fb-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");curSort=b.dataset.sort;applyFilters();}));
+  document.querySelectorAll(".fb-pos").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".fb-pos").forEach(x=>x.classList.remove("active"));b.classList.add("active");curPos=b.dataset.pos;applyFilters();}));
+  await loadLiveStats(renderCardStats);applyFilters();setTimeout(loadMatches,800);})();
+</script>
+</body>
+</html>
