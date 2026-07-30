@@ -49,7 +49,7 @@ const CONFIG = {
   coverDefault: "music/cover.jpg",
   songs: [
     { title:"CAOS",                 artist:"Tictac",      file:"CAOS.mp3" },
-    { title:"Madrid Intinmusic",    artist:"Cebotrón",    file:"Cebotrón Madrid Intinmusic.mp3" },
+    { title:"Madrid Intinmusic",    artist:"Cebotrón",    file:"Cebotrón Madrid lntinmusic.mp3" },
     { title:"Toplane pro 2",        artist:"Cebotrón",    file:"Cebotrón Toplane pro2.mp3" },
     { title:"Cumbia por la grieta", artist:"Tictac",      file:"Cumbia por la grieta.mp3" },
     { title:"4 Top",                artist:"San Quintín", file:"San Quintín 4 top.mp3" },
