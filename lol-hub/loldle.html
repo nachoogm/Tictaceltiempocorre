@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LoLdle — Tictac el tiempo corre</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+</head>
+<body>
+<header class="hero hero-sm"><canvas id="fx"></canvas><h1>LoLdle</h1><div class="tagline">Adivina el campeón · <b id="mode-lbl">Clásico</b></div></header>
+<div class="ld-wrap">
+  <div class="ld-modes">
+    <button class="rk-tab active" data-mode="classic">🧩 Clásico</button>
+    <button class="rk-tab" data-mode="ability">✨ Habilidad</button>
+    <button class="rk-tab" data-mode="quote">📜 Cita / Lore</button>
+    <button class="rk-tab" data-mode="emoji">😜 Emoji</button>
+    <button class="rk-tab" data-mode="splash">🖼️ Splash</button>
+    <span class="ld-daily"><label><input type="checkbox" id="daily-chk" checked> Reto del día</label></span>
+    <span class="ld-who"><select id="ld-player"></select></span>
+  </div>
+  <div class="ld-clue" id="ld-clue" style="display:none"></div>
+  <div class="ld-search"><input type="text" id="guess" class="champ-search" placeholder="✍️ Escribe un campeón y pulsa Enter…" autocomplete="off"><div class="ld-suggest" id="suggest"></div></div>
+  <div class="ld-stats" id="ld-stats"></div>
+  <div class="ld-legend" id="ld-legend"><span><i class="lg g"></i> Correcto</span><span><i class="lg y"></i> Parcial</span><span><i class="lg r"></i> Incorrecto</span><span>⬆️⬇️ = año más nuevo / más antiguo</span></div>
+  <div class="ld-table" id="ld-table">
+    <div class="ld-head"><span>Campeón</span><span>Género</span><span>Posición(es)</span><span>Especie</span><span>Recurso</span><span>Tipo de gama</span><span>Región(es)</span><span>Año</span></div>
+    <div id="ld-rows"></div>
+  </div>
+  <div class="ld-result" id="ld-result"></div>
+  <div class="ld-board" id="ld-board">
+    <div class="ld-board-head"><h2>🏆 Reto del día · clasificación</h2><span id="ld-board-sub">Quién lo saca en menos intentos</span></div>
+    <div class="ld-board-body" id="ld-board-body"><div class="mh-empty">Cargando…</div></div>
+  </div>
+</div>
+<footer><div class="disclaimer">Género, especie, región y año son datos curados a mano (Data Dragon no los expone). Recurso, gama y posiciones salen de Data Dragon. League of Legends © Riot Games, Inc.</div></footer>
+<script src="config.js"></script><script src="common.js"></script><script src="loldle-data.js"></script><script src="loldle.js"></script>
+</body>
+</html>

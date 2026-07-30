@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evolución de LP — Tictac el tiempo corre</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
+<style>
+.lp-toolbar{max-width:1000px;margin:20px auto 0;padding:0 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.lp-range{display:flex;gap:6px}
+.lp-rbtn{cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600}
+.lp-rbtn:hover{border-color:var(--gold);color:var(--gold-bright)}
+.lp-rbtn.active{background:linear-gradient(180deg,#123842,#0a1c26);border-color:var(--blue);color:var(--cyan)}
+.lp-actions{margin-left:auto;display:flex;gap:8px}
+.lp-mini{cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--text-dim);padding:7px 12px;border-radius:8px;font-size:12px}
+.lp-mini:hover{border-color:var(--gold);color:var(--gold-bright)}
+.lp-legend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.lp-leg{cursor:pointer;user-select:none;font-size:13px;color:var(--text);display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);padding:6px 12px;border-radius:20px}
+.lp-leg:hover{border-color:var(--gold)}
+.lp-leg i{width:11px;height:11px;border-radius:50%;background:var(--c);display:inline-block;flex-shrink:0}
+.lp-leg small{color:var(--text-dim);font-size:11px}
+.lp-leg.off{opacity:.4;filter:grayscale(1)}.lp-leg.off i{background:var(--text-dim)}
+.lp-canvas-box{position:relative}
+#lp-chart{cursor:crosshair}
+.lp-tip{position:absolute;pointer-events:none;display:none;z-index:20;background:linear-gradient(180deg,#141f33,#0c1424);border:1px solid var(--gold);border-radius:10px;padding:10px 12px;box-shadow:var(--shadow);font-size:12px;min-width:170px}
+.lp-tip .t-date{color:var(--text-dim);font-size:11px;margin-bottom:6px}
+.lp-tip .t-row{display:flex;align-items:center;gap:7px;margin-top:4px}
+.lp-tip .t-row i{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
+.lp-tip .t-name{color:var(--gold-bright);font-weight:700;flex:1;white-space:nowrap}
+.lp-tip .t-val{color:var(--cyan);font-weight:800;white-space:nowrap}
+</style>
+</head>
+<body>
+<header class="hero hero-sm"><canvas id="fx"></canvas><h1>Evolución de LP</h1><div class="tagline">¿Quién sube y quién baja? · ¿Quién está en racha? 🔥</div></header>
+<div class="lp-streaks">
+  <div class="lp-sec-head"><h2>🔥 ¿Quién está en racha?</h2><span>Según las últimas clasificatorias de cada cuenta</span></div>
+  <div class="lp-streak-grid" id="streak-grid"><div class="mh-empty">Cargando rachas…</div></div>
+</div>
+<div class="lp-chart-wrap"><div class="lp-sec-head"><h2>📈 Evolución de LP</h2><span id="lp-sub">Cargando…</span></div></div>
+<div class="lp-toolbar">
+  <span class="fb-lbl">Periodo:</span>
+  <div class="lp-range">
+    <button class="lp-rbtn active" data-days="7">📅 Semana</button>
+    <button class="lp-rbtn" data-days="30">🗓️ Mes</button>
+    <button class="lp-rbtn" data-days="90">📆 90 días</button>
+  </div>
+  <div class="lp-actions"><button class="lp-mini" id="lp-all">Mostrar todos</button><button class="lp-mini" id="lp-none">Ocultar todos</button></div>
+</div>
+<div class="lp-chart-wrap">
+  <div class="lp-legend" id="lp-legend"></div>
+  <div class="lp-canvas-box"><canvas id="lp-chart"></canvas><div class="lp-empty" id="lp-empty"></div><div class="lp-tip" id="lp-tip"></div></div>
+  <div class="lp-note">💡 Clica un nombre para mostrar/ocultar su línea. Pasa el ratón por la gráfica para ver los valores.</div>
+</div>
+<footer><div class="disclaimer">Histórico compartido (Azure Table Storage), retención 90 días. League of Legends © Riot Games, Inc.</div></footer>
+<script src="config.js"></script><script src="common.js"></script>
+<script>
+const PALETTE=["#0ac8b9","#f0d060","#ff6060","#8b6fd6","#2fd074","#e0555b","#4fd1c5","#c8aa6e","#6ba4ff","#ff9a3c","#7dd3fc","#f472b6"];
+function renderStreaks(){
+  const box=document.getElementById("streak-grid");
+  const rows=ACCOUNTS.map(acc=>{const p=parseId(acc.riotId);const ms=(MATCHDATA[p.full]||[]).filter(m=>m.ranked);
+    let cur=0,type=null;for(const m of ms){if(type===null){type=m.win;cur=1;}else if(m.win===type)cur++;else break;}
+    return{acc,p,ms,cur,type,total:ms.length};}).filter(r=>r.total>0);
+  if(!rows.length){box.innerHTML=`<div class="mh-empty">Aún no hay clasificatorias recientes cargadas.</div>`;return;}
+  rows.sort((a,b)=>((b.type?b.cur:0)-(a.type?a.cur:0)));
+  box.innerHTML=rows.map(r=>{
+    const dots=r.ms.slice(0,6).map(m=>`<span class="dot-${m.win?'w':'l'}" title="${m.win?'Victoria':'Derrota'} · ${m.championName}"></span>`).join("");
+    let tag="";if(r.type&&r.cur>=3)tag=`<span class="strk hot">🔥 ${r.cur} seguidas</span>`;
+    else if(r.type&&r.cur>=2)tag=`<span class="strk up">🟢 ${r.cur} seguidas</span>`;
+    else if(!r.type&&r.cur>=3)tag=`<span class="strk cold">🥶 ${r.cur} perdidas</span>`;
+    else if(!r.type&&r.cur>=2)tag=`<span class="strk down">🔴 ${r.cur} perdidas</span>`;
+    else tag=`<span class="strk">Irregular</span>`;
+    return `<div class="lp-strk-card"><img src="${champIcon(safeIcon(r.acc.main))}" onerror="this.style.visibility='hidden'"><div class="lp-strk-info"><div class="lp-strk-name">${r.acc.owner} <small style="color:var(--text-dim);font-weight:400">· ${r.p.name}</small></div><div class="lp-strk-dots">${dots}</div></div>${tag}</div>`;
+  }).join("");
+}
+const T_ORDER={IRON:0,BRONZE:1,SILVER:2,GOLD:3,PLATINUM:4,EMERALD:5,DIAMOND:6,MASTER:7,GRANDMASTER:8,CHALLENGER:9};
+const T_SHORT={IRON:"Hierro",BRONZE:"Bronce",SILVER:"Plata",GOLD:"Oro",PLATINUM:"Plat",EMERALD:"Esm",DIAMOND:"Dia",MASTER:"Maestro",GRANDMASTER:"GM",CHALLENGER:"Retador"};
+const T_COL={IRON:"#7d7d7d",BRONZE:"#a5713d",SILVER:"#9aa8b3",GOLD:"#e6b84f",PLATINUM:"#4fd1c5",EMERALD:"#2ecc71",DIAMOND:"#5b8bf0",MASTER:"#b45cf0",GRANDMASTER:"#e0555b",CHALLENGER:"#f0d060"};
+const DIVS=["IV","III","II","I"];
+function absToLabel(abs){const t=Math.floor(abs/400);const rest=abs-t*400;const d=Math.min(3,Math.floor(rest/100));const name=Object.keys(T_ORDER).find(k=>T_ORDER[k]===t);if(!name)return null;return {label:t>=7?T_SHORT[name]:`${T_SHORT[name]} ${DIVS[d]}`,color:T_COL[name]};}
+function divisionTicks(min,max){const out=[];const start=Math.floor(min/100)*100,end=Math.ceil(max/100)*100;const step=(end-start)/100>14?200:100;for(let v=start;v<=end;v+=step){const l=absToLabel(v);if(l)out.push({v,...l});}return out;}
+let SHARED=null, DAYS=7, HIDDEN=new Set(), SERIES=[], LAYOUT=null;
+function histFor(name){if(SHARED&&SHARED[name]&&SHARED[name].length)return SHARED[name];return getLpHistory(name);}
+function buildSeries(){
+  const cut=new Date(Date.now()-DAYS*86400000);
+  const cutStr=cut.getFullYear()+"-"+String(cut.getMonth()+1).padStart(2,"0")+"-"+String(cut.getDate()).padStart(2,"0");
+  SERIES=ACCOUNTS.map((acc,i)=>{const p=parseId(acc.riotId);const hist=histFor(p.name).filter(h=>h.date>=cutStr);
+    return{key:p.name,owner:acc.owner,nick:p.name,color:PALETTE[i%PALETTE.length],hist};}).filter(s=>s.hist.length>0);
+}
+function renderLegend(){
+  const el=document.getElementById("lp-legend");
+  el.innerHTML=SERIES.map(s=>{
+    const f=s.hist[0],l=s.hist[s.hist.length-1];const d=l.abs-f.abs;
+    const dtxt=s.hist.length>1?`${d>=0?"▲ +":"▼ "}${d} LP`:"—";
+    return `<span class="lp-leg${HIDDEN.has(s.key)?" off":""}" data-key="${s.key}" style="--c:${s.color}"><i></i>${s.owner} <small>${s.nick}</small> <b style="color:${d>=0?'var(--win)':'var(--loss)'}">${dtxt}</b></span>`;
+  }).join("");
+  el.querySelectorAll(".lp-leg").forEach(b=>b.addEventListener("click",()=>{const k=b.dataset.key;if(HIDDEN.has(k))HIDDEN.delete(k);else HIDDEN.add(k);renderLegend();drawChart();}));
+}
+function drawChart(){
+  const cv=document.getElementById("lp-chart");const box=cv.parentElement;const empty=document.getElementById("lp-empty");
+  const vis=SERIES.filter(s=>!HIDDEN.has(s.key));
+  if(!SERIES.length){empty.style.display="flex";empty.innerHTML=`<div>📊 Sin datos en este periodo.<br><small>El snapshot se guarda a las 23:00. Prueba un rango mayor.</small></div>`;cv.style.display="none";return;}
+  empty.style.display="none";cv.style.display="block";
+  const dates=[...new Set(SERIES.flatMap(s=>s.hist.map(h=>h.date)))].sort();
+  const w=box.clientWidth,h=380,pad={l:74,r:18,t:18,b:34};
+  const dpr=window.devicePixelRatio||1;
+  cv.width=w*dpr;cv.height=h*dpr;cv.style.width=w+"px";cv.style.height=h+"px";
+  const ctx=cv.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+  const src=vis.length?vis:SERIES;
+  const allAbs=src.flatMap(s=>s.hist.map(x=>x.abs)).filter(v=>v!=null);
+  let min=Math.min(...allAbs),max=Math.max(...allAbs);
+  if(min===max){min-=120;max+=120;}
+  const padY=Math.max(40,(max-min)*0.18);min-=padY;max+=padY;
+  const xFor=i=>pad.l+(dates.length<=1?(w-pad.l-pad.r)/2:(i/(dates.length-1))*(w-pad.l-pad.r));
+  const yFor=v=>pad.t+(1-(v-min)/(max-min))*(h-pad.t-pad.b);
+  ctx.font="11px Segoe UI";ctx.textBaseline="middle";
+  divisionTicks(min,max).forEach(t=>{const y=yFor(t.v);if(y<pad.t-2||y>h-pad.b+2)return;
+    ctx.strokeStyle="rgba(36,52,80,.55)";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();
+    ctx.fillStyle=t.color;ctx.globalAlpha=.9;ctx.textAlign="right";ctx.fillText(t.label,pad.l-8,y);ctx.globalAlpha=1;});
+  ctx.fillStyle="#6b7a8f";ctx.textAlign="center";
+  const stepX=dates.length>10?Math.ceil(dates.length/8):1;
+  dates.forEach((d,i)=>{if(i%stepX)return;ctx.fillText(d.slice(5),xFor(i),h-14);});
+  LAYOUT={dates,xFor,yFor,w,h};
+  vis.forEach(s=>{
+    const pts=dates.map((d,i)=>{const hit=s.hist.find(x=>x.date===d);return hit?{x:xFor(i),y:yFor(hit.abs)}:null;}).filter(Boolean);
+    if(!pts.length)return;
+    ctx.strokeStyle=s.color;ctx.lineWidth=2.6;ctx.lineJoin="round";
+    ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));if(pts.length>1)ctx.stroke();
+    ctx.fillStyle=s.color;pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,dates.length<3?5:3.6,0,7);ctx.fill();});
+  });
+}
+function initTooltip(){
+  const cv=document.getElementById("lp-chart");const tip=document.getElementById("lp-tip");
+  cv.addEventListener("mousemove",e=>{
+    if(!LAYOUT){tip.style.display="none";return;}
+    const r=cv.getBoundingClientRect();const mx=e.clientX-r.left,my=e.clientY-r.top;
+    const {dates,xFor,yFor}=LAYOUT;
+    let bi=0,bd=1e9;dates.forEach((d,i)=>{const dx=Math.abs(xFor(i)-mx);if(dx<bd){bd=dx;bi=i;}});
+    if(bd>70){tip.style.display="none";return;}
+    const date=dates[bi];
+    const rows=SERIES.filter(s=>!HIDDEN.has(s.key)).map(s=>{const hit=s.hist.find(x=>x.date===date);return hit?{s,hit,y:yFor(hit.abs)}:null;}).filter(Boolean);
+    if(!rows.length){tip.style.display="none";return;}
+    rows.sort((a,b)=>Math.abs(a.y-my)-Math.abs(b.y-my));
+    tip.innerHTML=`<div class="t-date">📅 ${date}</div>`+rows.slice(0,7).map((r,i)=>{const lbl=absToLabel(r.hit.abs);
+      return `<div class="t-row" style="${i===0?'font-weight:800':''}"><i style="background:${r.s.color}"></i><span class="t-name">${r.s.owner} <small style="color:var(--text-dim)">${r.s.nick}</small></span><span class="t-val">${lbl?lbl.label:""} · ${r.hit.lp} LP</span></div>`;}).join("");
+    tip.style.display="block";
+    const tw=tip.offsetWidth,th=tip.offsetHeight;
+    let nx=xFor(bi)+14,ny=my-th/2;
+    if(nx+tw>LAYOUT.w-6)nx=xFor(bi)-tw-14;
+    ny=Math.max(4,Math.min(LAYOUT.h-th-4,ny));
+    tip.style.left=nx+"px";tip.style.top=ny+"px";
+  });
+  cv.addEventListener("mouseleave",()=>tip.style.display="none");
+}
+function refresh(){buildSeries();renderLegend();drawChart();}
+(async function(){
+  injectNav("lp.html");initFX();await loadDDragon();
+  await loadLiveStats();await loadMatches();
+  renderStreaks();
+  SHARED=await getSharedLp(90);
+  document.getElementById("lp-sub").textContent=SHARED?"📡 Histórico COMPARTIDO entre todo el grupo (Azure)":"Registrado en este navegador (modo local)";
+  document.querySelectorAll(".lp-rbtn").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".lp-rbtn").forEach(x=>x.classList.remove("active"));b.classList.add("active");DAYS=+b.dataset.days;refresh();}));
+  document.getElementById("lp-all").addEventListener("click",()=>{HIDDEN.clear();renderLegend();drawChart();});
+  document.getElementById("lp-none").addEventListener("click",()=>{SERIES.forEach(s=>HIDDEN.add(s.key));renderLegend();drawChart();});
+  initTooltip();refresh();
+  window.addEventListener("resize",drawChart);
+})();
+</script>
+</body>
+</html>
