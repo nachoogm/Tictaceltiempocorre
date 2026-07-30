@@ -38,7 +38,7 @@ const CONFIG = {
     { person:"Tacua", icon:"Lulu", accounts:[
       { riotId:"tacua#EUW",             rol:"Support", main:"Lulu"  },
       { riotId:"Tacuoptero#3612",       rol:"Support", main:"Braum" },
-      { riotId:"tacuantino#3612",       rol:"Support", main:"Bardo" }
+      { riotId:"tacuantino#3612",       rol:"Support", main:"Bard" }
     ]}
   ],
 
